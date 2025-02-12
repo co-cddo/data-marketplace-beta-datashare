@@ -1,0 +1,150 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Name>Agrimetrics.DataShare.Sql</Name>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectVersion>4.1</ProjectVersion>
+    <ProjectGuid>{21899c8a-f1d6-4e40-afda-13a00f752b9f}</ProjectGuid>
+    <DSP>Microsoft.Data.Tools.Schema.Sql.SqlAzureV12DatabaseSchemaProvider</DSP>
+    <OutputType>Database</OutputType>
+    <RootPath>
+    </RootPath>
+    <RootNamespace>Agrimetrics.DataShare.Sql</RootNamespace>
+    <AssemblyName>Agrimetrics.DataShare.Sql</AssemblyName>
+    <ModelCollation>1033, CI</ModelCollation>
+    <DefaultFileStructure>BySchemaAndSchemaType</DefaultFileStructure>
+    <DeployToDatabase>True</DeployToDatabase>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetLanguage>CS</TargetLanguage>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <SqlServerVerification>False</SqlServerVerification>
+    <IncludeCompositeObjects>True</IncludeCompositeObjects>
+    <TargetDatabaseSet>True</TargetDatabaseSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
+    <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <DefineDebug>false</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <DefineDebug>true</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
+    <!-- Default to the v11.0 targets path if the targets file for the current VS version is not found -->
+    <SSDTExists Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets')">True</SSDTExists>
+    <VisualStudioVersion Condition="'$(SSDTExists)' == ''">11.0</VisualStudioVersion>
+  </PropertyGroup>
+  <Import Condition="'$(SQLDBExtensionsRefPath)' != ''" Project="$(SQLDBExtensionsRefPath)\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
+  <Import Condition="'$(SQLDBExtensionsRefPath)' == ''" Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
+  <ItemGroup>
+    <Folder Include="Properties" />
+    <Folder Include="Tables" />
+    <Folder Include="PostDeployment" />
+    <Folder Include="PostDeployment\Population" />
+    <Folder Include="PostDeployment\Population\QuestionData" />
+    <Folder Include="PostDeployment\Population\QuestionData\ResponseData" />
+    <Folder Include="Tables\QuestionSetData" />
+    <Folder Include="Tables\QuestionData" />
+    <Folder Include="Tables\QuestionData\ResponseData" />
+    <Folder Include="Tables\QuestionData\ResponseData\SelectionOptionData" />
+    <Folder Include="Tables\CompulsoryQuestionData" />
+    <Folder Include="Tables\DataShareRequestData" />
+    <Folder Include="PostDeployment\Population\DataShareRequestData" />
+    <Folder Include="Tables\AnswerData" />
+    <Folder Include="Tables\QuestionData\ResponseData\FreeFormOptionsData" />
+    <Folder Include="Tables\AnswerData\AnswerValidationData" />
+    <Folder Include="PostDeployment\Population\AnswerData" />
+    <Folder Include="PostDeployment\Population\AnswerData\AnswerValidationData" />
+    <Folder Include="Tables\AuditLogData" />
+    <Folder Include="Tables\QuestionSetData\SelectionDependentNavigationData" />
+    <Folder Include="PostDeployment\Population\QuestionSetData" />
+    <Folder Include="Tables\SubmissionData" />
+    <Folder Include="Tables\QuestionSetData\QuestionHighlightData" />
+    <Folder Include="PostDeployment\Migration" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="PostDeployment\Population\QuestionData\ResponseData\Script.PostDeployment.SelectionOptionType.sql" />
+    <Build Include="Tables\QuestionSetData\QuestionSet.sql" />
+    <Build Include="Tables\QuestionSetData\QuestionSetSection.sql" />
+    <Build Include="Tables\QuestionSetData\QuestionSetQuestion.sql" />
+    <Build Include="Tables\QuestionData\ResponseData\SelectionOptionData\SelectionOption.sql" />
+    <Build Include="Tables\QuestionData\ResponseData\SelectionOptionData\SelectionOptionMultiValue.sql" />
+    <Build Include="Tables\QuestionData\ResponseData\SelectionOptionData\SelectionOptionSingleValue.sql" />
+    <Build Include="Tables\QuestionData\ResponseData\SelectionOptionData\SelectionOptionType.sql" />
+    <Build Include="Tables\QuestionData\ResponseData\ResponseFormatType.sql" />
+    <Build Include="Tables\QuestionData\ResponseData\ResponseFormatFreeForm.sql" />
+    <Build Include="Tables\QuestionData\ResponseData\ResponseFormatOptionSelection.sql" />
+    <Build Include="Tables\QuestionData\ResponseData\ResponseInputType.sql" />
+    <Build Include="Tables\QuestionData\Question.sql" />
+    <Build Include="Tables\QuestionData\QuestionPart.sql" />
+    <Build Include="Tables\QuestionData\QuestionPartSet.sql" />
+    <None Include="PostDeployment\Migration\Script.PostDeployment.Migration.ChangeCountryQuestionTypeToFreeformCountry.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <PostDeploy Include="PostDeployment\Script.PostDeployment.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="PostDeployment\Population\QuestionData\ResponseData\Script.PostDeployment.ResponseInputType.sql" />
+    <None Include="PostDeployment\Population\QuestionData\ResponseData\Script.PostDeployment.ResponseFormatType.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <Build Include="Tables\QuestionData\ResponseData\ResponseFormatNone.sql" />
+    <Build Include="Tables\QuestionData\QuestionPartType.sql" />
+    <None Include="PostDeployment\Population\QuestionData\ResponseData\Script.PostDeployment.QuestionPartType.sql" />
+    <Build Include="Tables\CompulsoryQuestionData\CompulsoryQuestion.sql" />
+    <Build Include="Tables\CompulsoryQuestionData\CompulsorySupplierQuestion.sql" />
+    <Build Include="Tables\QuestionSetData\QuestionSetPreRequisite.sql" />
+    <Build Include="Tables\DataShareRequestData\DataShareRequestStatusType.sql" />
+    <None Include="PostDeployment\Population\DataShareRequestData\Script.PostDeployment.DataShareRequestStatusType.sql" />
+    <Build Include="Tables\DataShareRequestData\DataShareRequest.sql" />
+    <Build Include="Tables\AnswerData\AnswerPartResponseItem.sql" />
+    <Build Include="Tables\AnswerData\AnswerPartResponseItemFreeForm.sql" />
+    <Build Include="Tables\AnswerData\AnswerPartResponseItemSelectionOption.sql" />
+    <Build Include="Tables\QuestionData\ResponseData\FreeFormOptionsData\FreeFormOptions.sql" />
+    <Build Include="Tables\AnswerData\AnswerPart.sql" />
+    <Build Include="Tables\QuestionData\QuestionPartMultiAnswerResponseInformation.sql" />
+    <Build Include="Tables\AnswerData\AnswerSet.sql" />
+    <Build Include="Tables\QuestionData\QuestionStatusType.sql" />
+    <None Include="PostDeployment\Population\QuestionData\Script.PostDeployment.QuestionStatusType.sql" />
+    <Build Include="Tables\AnswerData\Answer.sql" />
+    <Build Include="Tables\AnswerData\AnswerValidationData\QuestionPartAnswerValidationRuleId.sql" />
+    <None Include="PostDeployment\Population\AnswerData\AnswerValidationData\Script.PostDeployment.QuestionPartAnswerValidationRuleId.sql" />
+    <Build Include="Tables\AnswerData\AnswerValidationData\QuestionPartAnswerValidationRule.sql" />
+    <None Include="PostDeployment\Population\AnswerData\AnswerValidationData\Script.PostDeployment.QuestionPartAnswerValidationRule.sql" />
+    <Build Include="Tables\AnswerData\AnswerValidationData\QuestionPartAnswerValidation.sql" />
+    <Build Include="Tables\AuditLogData\AuditLogDataShareRequestStatusChange.sql" />
+    <Build Include="Tables\AuditLogData\AuditLogDataShareRequestStatusChangeComment.sql" />
+    <None Include="PostDeployment\Population\Script.PostDeployment.MasterQuestionSet.sql" />
+    <Build Include="Tables\QuestionSetData\SelectionDependentNavigationData\QuestionSetSelectionOptionQuestionApplicabilityCondition.sql" />
+    <Build Include="Tables\QuestionSetData\SelectionDependentNavigationData\QuestionSetSelectionOptionQuestionApplicabilityOverride.sql" />
+    <None Include="PostDeployment\Population\QuestionSetData\Script.PostDeployment.QuestionSetSelectionOptionQuestionApplicabilityCondition.sql" />
+    <Build Include="Tables\QuestionData\QuestionFooter.sql" />
+    <Build Include="Tables\QuestionData\QuestionFooterItem.sql" />
+    <Build Include="Tables\AnswerData\AnswerPartResponse.sql" />
+    <Build Include="Tables\SubmissionData\Submission.sql" />
+    <Build Include="Tables\QuestionData\QuestionPartKeyType.sql" />
+    <None Include="PostDeployment\Population\QuestionData\Script.PostDeployment.QuestionPartKeyType.sql" />
+    <Build Include="Tables\QuestionSetData\QuestionSetKeyQuestionPart.sql" />
+    <Build Include="Tables\QuestionSetData\QuestionHighlightData\QuestionSetSelectionOptionQuestionHighlight.sql" />
+    <Build Include="Tables\QuestionSetData\QuestionHighlightData\QuestionSetSelectionOptionQuestionHighlightCondition.sql" />
+    <None Include="PostDeployment\Population\QuestionSetData\Script.PostDeployment.QuestionSetSelectionOptionQuestionHighlightCondition.sql" />
+  </ItemGroup>
+</Project>

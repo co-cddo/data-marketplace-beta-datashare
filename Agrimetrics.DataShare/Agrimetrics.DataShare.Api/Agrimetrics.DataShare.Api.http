@@ -1,0 +1,6 @@
+@Agrimetrics.DataShare.Api_HostAddress = http://localhost:5255
+
+GET {{Agrimetrics.DataShare.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -1,0 +1,10 @@
+﻿CREATE TABLE [dbo].[Answer]
+(
+	[Id] UNIQUEIDENTIFIER NOT NULL PRIMARY KEY DEFAULT NEWID(),
+
+	[AnswerSet] UNIQUEIDENTIFIER NOT NULL FOREIGN KEY REFERENCES [AnswerSet](Id),
+	[Question] UNIQUEIDENTIFIER NOT NULL FOREIGN KEY REFERENCES [Question](Id),
+	[QuestionStatus] NVARCHAR(32) NOT NULL FOREIGN KEY REFERENCES [QuestionStatusType](Value) DEFAULT 'NotSet',
+
+	CONSTRAINT AnswerAnswerSetQuestionUniqueConstraint UNIQUE (AnswerSet, Question)
+)

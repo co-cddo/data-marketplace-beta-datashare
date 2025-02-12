@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Models\Esda\**" />
+    <EmbeddedResource Remove="Models\Esda\**" />
+    <None Remove="Models\Esda\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Models\DataShareRequests\Questions\DataShareRequestQuestionSectionSummary.cs" />
+    <Compile Remove="Models\DataShareRequests\Questions\DataShareRequestQuestionSummary.cs" />
+    <Compile Remove="Models\DataShareRequests\Questions\DataShareRequestQuestionSummarySet.cs" />
+    <Compile Remove="Models\DataShareRequests\Questions\QuestionPartAnswerInformation.cs" />
+    <Compile Remove="Models\DataShareRequests\Questions\SavedQuestionInformation.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Agrimetrics.DataShare.Api.Core\Agrimetrics.DataShare.Api.Core.csproj" />
+  </ItemGroup>
+
+</Project>

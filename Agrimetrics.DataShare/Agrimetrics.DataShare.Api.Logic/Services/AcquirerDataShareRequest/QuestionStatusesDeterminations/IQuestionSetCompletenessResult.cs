@@ -1,0 +1,8 @@
+﻿using Agrimetrics.DataShare.Api.Logic.ModelData.DataShareRequests.QuestionStatusDeterminations;
+
+namespace Agrimetrics.DataShare.Api.Logic.Services.AcquirerDataShareRequest.DataShareRequestQuestionStatusesDeterminations;
+
+public interface IDataShareRequestQuestionSetCompletenessDeterminationResult
+{
+    IEnumerable<IDataShareRequestQuestionSetQuestionStatusDataModel> QuestionsRequiringAResponse { get; }
+}

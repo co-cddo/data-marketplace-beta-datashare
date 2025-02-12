@@ -1,0 +1,14 @@
+﻿using Agrimetrics.DataShare.Api.Dto.Models.DataShareRequests;
+
+namespace Agrimetrics.DataShare.Api.Dto.Models.Supplier.DataShareRequests.Decisions;
+
+public class ReturnedDecisionSummary
+{
+    public Guid DataShareRequestId { get; set; }
+
+    public string DataShareRequestRequestId { get; set; } = string.Empty;
+
+    public DataShareRequestStatus RequestStatus { get; set; }
+
+    public string AcquirerOrganisationName { get; set; } = string.Empty;
+}

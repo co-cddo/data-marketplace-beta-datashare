@@ -1,0 +1,244 @@
+# ==============================
+# Azure DevOps Pipeline for Building and Deploying the Data Share API
+# ==============================
+# This pipeline:
+# - Builds the Data Share API (.NET 8)
+# - Runs static code analysis with SonarCloud
+# - Runs unit tests and collects code coverage reports
+# - Publishes build artifacts
+# - Deploys the API to DEV, TEST, and PROD environments
+
+# ------------------------------
+# Trigger: Only Runs on Master Branch
+# ------------------------------
+# This pipeline is triggered automatically whenever a commit is pushed to the `master` branch.
+trigger:
+  branches:
+    include:
+      - master  # Ensures this pipeline runs only on master branch commits.
+
+# ------------------------------
+# Agent Pool: Windows Latest
+# ------------------------------
+# Specifies that the pipeline will run on a Microsoft-hosted agent using the latest Windows image.
+pool:
+  name: Azure Pipelines
+  vmImage: 'windows-latest'
+
+# ===================================
+# STAGES SECTION 
+# ===================================
+stages:
+  # ===================================
+  # STAGE 1: PRE-DEPLOYMENT (BUILD)
+  # ===================================
+  - stage: Pre_Deployment
+    displayName: 'Build Stage'  # Name displayed in Azure DevOps UI
+
+    jobs:
+      - job: Build
+        displayName: 'Build Data Share API'  # Identifies the build job in logs
+
+        steps:
+          # --------------------------------
+          # STEP 1: CHECKOUT REPOSITORY CODE
+          # --------------------------------
+          # Ensures the latest version of the repository is fetched before building.
+          - checkout: self  
+
+          # --------------------------------
+          # STEP 2: INSTALL .NET SDK
+          # --------------------------------
+          # Installs the latest .NET 8 SDK required for building and testing the project.
+          - task: UseDotNet@2
+            displayName: 'Install .NET SDK'
+            inputs:
+              packageType: 'sdk'
+              version: '8.0.x'  # Ensures compatibility with .NET 8
+              installationPath: $(Agent.ToolsDirectory)/dotnet
+
+          # --------------------------------
+          # STEP 3: CONFIGURE SONARCLOUD ANALYSIS
+          # --------------------------------
+          # Prepares SonarCloud for static code analysis and security scanning.
+          - task: SonarCloudPrepare@3
+            inputs:
+              SonarCloud: '$(sonarCloudConnection)'
+              organization: '$(sonarCloudOrganization)'
+              projectKey: '$(sonarProjectKey)'
+              projectName: '$(sonarProjectName)'
+              scannerMode: 'dotnet'
+              extraProperties: |
+                sonar.cs.opencover.reportsPaths=$(Build.SourcesDirectory)/TestResults/**/coverage.opencover.xml
+
+
+          # --------------------------------
+          # STEP 4: RESTORE DEPENDENCIES
+          # --------------------------------
+          # Ensures all necessary NuGet packages are installed before building the project.
+          - task: DotNetCoreCLI@2
+            displayName: 'Restore Dependencies'
+            inputs:
+              command: 'restore'
+              projects: '**/*.csproj'  # Restores dependencies for all C# projects
+
+          # --------------------------------
+          # STEP 5: REMOVE SQL PROJECT FROM SOLUTION
+          # --------------------------------
+          # The .sqlproj file (SQL Database Project) is removed to prevent SSDT build failures.
+          - script: |
+              echo "Removing SQL project from solution to avoid SSDT build failure..."
+              cd Agrimetrics.DataShare
+              dotnet sln remove Agrimetrics.DataShare.Sql\Agrimetrics.DataShare.Sql.sqlproj || echo "SQL project was not in solution"
+            displayName: 'Remove SQL Project'
+
+          # --------------------------------
+          # STEP 6: BUILD THE SOLUTION
+          # --------------------------------
+          # Compiles the .NET application in Release mode for deployment.
+          - task: DotNetCoreCLI@2
+            displayName: 'Build Solution'
+            inputs:
+              command: 'build'
+              arguments: '--configuration Release'
+              workingDirectory: 'Agrimetrics.DataShare'
+
+          # --------------------------------
+          # STEP 7: RUN UNIT TESTS WITH CODE COVERAGE
+          # --------------------------------
+          # Runs the unit tests and collects test results & code coverage reports.
+          - task: DotNetCoreCLI@2
+            displayName: 'Run Tests with Code Coverage'
+            inputs:
+              command: 'test'
+              projects: '**/*Tests.csproj'  # Ensure only test projects run
+              arguments: '--settings opencover.runsettings --configuration Release --collect:"XPlat Code Coverage" --results-directory $(Build.SourcesDirectory)/TestResults'
+              publishTestResults: true
+
+
+          # --------------------------------
+          # STEP 8: PUBLISH CODE COVERAGE REPORTS
+          # --------------------------------
+          - task: PublishCodeCoverageResults@2
+            displayName: 'Publish Code Coverage Results'
+            inputs:
+              codeCoverageTool: 'Cobertura'  # Cobertura is more reliable than OpenCover in Azure DevOps
+              summaryFileLocation: '$(Build.SourcesDirectory)/TestResults/**/coverage.opencover.xml'
+              reportDirectory: '$(Build.SourcesDirectory)/TestResults'
+
+
+          # --------------------------------
+          # STEP 9: RUN SONARCLOUD ANALYSIS
+          # --------------------------------
+          - task: SonarCloudAnalyze@3
+
+          # --------------------------------
+          # STEP 10: CHECK SONARCLOUD QUALITY GATE
+          # --------------------------------
+          - task: SonarCloudPublish@3
+            inputs:
+              pollingTimeoutSec: '300'  # Wait for up to 5 minutes for results
+
+          # --------------------------------
+          # STEP 11: PUBLISH THE API ARTIFACT
+          # --------------------------------
+          - task: DotNetCoreCLI@2
+            displayName: 'Publish Data Share API'
+            inputs:
+              command: 'publish'
+              publishWebProjects: true
+              arguments: '--configuration Release --output $(Build.ArtifactStagingDirectory) --runtime win-x64 --self-contained false'
+              zipAfterPublish: true  # Ensures artifacts are compressed for deployment
+
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish Build Artifacts'
+            inputs:
+              PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+              ArtifactName: 'api'
+              publishLocation: 'Container'
+
+          # --------------------------------
+          # STEP 12: PUBLISH TEST RESULTS
+          # --------------------------------
+          - task: PublishTestResults@2
+            inputs:
+              testResultsFormat: 'VSTest'
+              testResultsFiles: '$(Build.SourcesDirectory)/**/TestResults/*.trx'
+              failTaskOnFailedTests: true
+            displayName: 'Publish Test Results'
+
+  # ===================================
+  # DEPLOYMENT STAGES: DEV, TEST, PROD
+  # ===================================
+
+  # DEPLOY TO DEV
+  - stage: DEV_Environment_Deployment
+    dependsOn: Pre_Deployment
+    condition: succeeded()
+    displayName: 'Deploy to DEV Environment'
+    jobs:
+      - deployment: DeployToDev
+        environment: 'CDDO DEV Data Share API'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - download: current
+                  artifact: api
+                - task: AzureRmWebAppDeployment@4
+                  displayName: 'Deploy to DEV Data Share API'
+                  inputs:
+                    ConnectionType: 'AzureRM'
+                    azureSubscription: '$(azureSubscriptionDev)'
+                    appType: 'webApp'
+                    WebAppName: '$(webAppNameDev)'
+                    ResourceGroupName: '$(resourceGroupDev)'
+                    package: '$(Pipeline.Workspace)/api/**/*.zip'
+
+  # DEPLOY TO TEST
+  - stage: TEST_Environment_Deployment
+    dependsOn: DEV_Environment_Deployment
+    condition: succeeded()
+    displayName: 'Deploy to TEST Environment'
+    jobs:
+      - deployment: DeployToTest
+        environment: 'CDDO TEST Data Share API'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - download: current
+                  artifact: api
+                - task: AzureRmWebAppDeployment@4
+                  displayName: 'Deploy to TEST Data Share API'
+                  inputs:
+                    ConnectionType: 'AzureRM'
+                    azureSubscription: '$(azureSubscriptionDev)'
+                    appType: 'webApp'
+                    WebAppName: '$(webAppNameTest)'
+                    ResourceGroupName: '$(resourceGroupTest)'
+                    package: '$(Pipeline.Workspace)/api/**/*.zip'
+
+  # DEPLOY TO PROD
+  - stage: PROD_UK_SOUTH
+    dependsOn: TEST_Environment_Deployment
+    condition: succeeded()
+    displayName: 'Deploy to PRODUCTION Environment - UK South'
+    jobs:
+      - deployment: DeployToProdUKSouth
+        environment: 'CDDO PROD Data Share API UK South'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - download: current
+                  artifact: api
+                - task: AzureRmWebAppDeployment@4
+                  displayName: 'Deploy to PROD Data Share API (UK South)'
+                  inputs:
+                    ConnectionType: 'AzureRM'
+                    azureSubscription: '$(azureSubscriptionProd)'
+                    appType: 'webApp'
+                    WebAppName: '$(webAppNameProdUKSouth)'
+                    ResourceGroupName: '$(resourceGroupProdUKSouth)'
+                    package: '$(Pipeline.Workspace)/api/**/*.zip'

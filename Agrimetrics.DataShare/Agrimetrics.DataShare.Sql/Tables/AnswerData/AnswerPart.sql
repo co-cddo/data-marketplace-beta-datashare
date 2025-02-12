@@ -1,0 +1,9 @@
+﻿CREATE TABLE [dbo].[AnswerPart]
+(
+	[Id] UNIQUEIDENTIFIER NOT NULL PRIMARY KEY DEFAULT NEWID(),
+
+	[Answer] UNIQUEIDENTIFIER NOT NULL FOREIGN KEY REFERENCES [Answer](Id),
+	[QuestionPart] UNIQUEIDENTIFIER NOT NULL FOREIGN KEY REFERENCES [QuestionPart](Id),
+
+	CONSTRAINT AnswerPartAnswerQuestionPartUniqueConstraint UNIQUE (Answer, QuestionPart)
+)

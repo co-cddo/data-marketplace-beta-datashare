@@ -1,0 +1,13 @@
+﻿CREATE TABLE [dbo].[SelectionOption]
+(
+	Id UNIQUEIDENTIFIER NOT NULL PRIMARY KEY DEFAULT NEWID(),
+
+	[QuestionPart] UNIQUEIDENTIFIER NOT NULL FOREIGN KEY REFERENCES [QuestionPart](Id),
+
+	[OptionType] NVARCHAR(32) NOT NULL FOREIGN KEY REFERENCES [SelectionOptionType](Value),
+	[OptionValueText] NVARCHAR(256) NOT NULL,
+	[OptionHintText] NVARCHAR(256) NULL,
+	[OptionOrder] INTEGER NOT NULL,
+
+	[SupplementaryQuestionPart] UNIQUEIDENTIFIER NULL FOREIGN KEY REFERENCES [QuestionPart](Id)
+)

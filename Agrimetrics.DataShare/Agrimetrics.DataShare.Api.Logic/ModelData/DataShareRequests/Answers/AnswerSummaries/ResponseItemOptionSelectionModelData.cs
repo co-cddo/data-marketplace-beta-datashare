@@ -1,0 +1,10 @@
+﻿using Agrimetrics.DataShare.Api.Logic.ModelData.Questions.QuestionParts.ResponseFormats;
+
+namespace Agrimetrics.DataShare.Api.Logic.ModelData.DataShareRequests.Answers.DataShareRequestAnswerSummaries;
+
+public class DataShareRequestAnswersSummaryQuestionPartAnswerResponseItemOptionSelectionModelData : DataShareRequestAnswersSummaryQuestionPartAnswerResponseItemModelData
+{
+    public override QuestionPartResponseInputType DataShareRequestAnswersSummaryQuestionPartAnswerResponseItem_ResponseInputType => QuestionPartResponseInputType.OptionSelection;
+
+    public List<DataShareRequestAnswersSummaryQuestionPartAnswerResponseOptionSelectionSelectedOptionModelData> DataShareRequestAnswersSummaryQuestionPartAnswerResponseItemOptionSelection_SelectedOptions { get; set; } = [];
+}
