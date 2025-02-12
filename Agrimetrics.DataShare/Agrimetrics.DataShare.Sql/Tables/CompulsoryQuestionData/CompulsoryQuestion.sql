@@ -1,0 +1,4 @@
+﻿CREATE TABLE [dbo].[CompulsoryQuestion]
+(
+	[Question] UNIQUEIDENTIFIER NOT NULL FOREIGN KEY REFERENCES [Question](Id) PRIMARY KEY
+)

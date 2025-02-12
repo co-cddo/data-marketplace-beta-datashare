@@ -1,0 +1,85 @@
+# ==============================
+# Azure DevOps Pipeline for .NET Vulnerability Scanning
+# ==============================
+# This pipeline is used to scan .NET dependencies for known vulnerabilities.
+# It runs automatically on the master branch and on a daily schedule at 9 AM.
+
+# ------------------------------
+# Trigger: Only Runs on Master Branch
+# ------------------------------
+# This pipeline is triggered ONLY when changes are pushed to the `master` branch.
+trigger:
+  branches:
+    include:
+      - master  # Ensures that the pipeline runs only when the master branch is updated.
+
+# ------------------------------
+# Agent Pool: Azure Pipelines (Windows Latest)
+# ------------------------------
+# Specifies that the pipeline runs on a Microsoft-hosted agent using the latest Windows image.
+# This ensures compatibility with .NET projects.
+pool:
+  name: Azure Pipelines
+  vmImage: 'windows-latest'
+
+# ------------------------------
+# Scheduled Execution: Daily at 9 AM
+# ------------------------------
+# This ensures that the pipeline automatically runs every day at 9 AM UTC.
+# The schedule is defined using CRON syntax: "0 9 * * *"
+schedules:
+  - cron: "0 9 * * *"  # Runs at 9:00 AM UTC every day
+    displayName: 'Run Vulnerability Scan at 9 AM'
+    branches:
+      include:
+        - master  # Only runs on the master branch (ignores feature branches)
+
+# ===================================
+# STAGES SECTION 
+# ===================================
+stages:
+  # ===================================
+  # STAGE 1: VULNERABILITY SCAN
+  # ===================================
+  - stage: VulnerabilityScan
+    displayName: 'Vulnerability Scan Stage'  # Name displayed in Azure DevOps UI
+
+    jobs:
+      - job: Scan
+        displayName: 'Run .NET Vulnerability Scan'  # Identifies the job in the pipeline logs
+
+        steps:
+          # --------------------------------
+          # STEP 1: CHECKOUT REPOSITORY CODE
+          # --------------------------------
+          # This ensures the latest version of the repository is fetched for analysis.
+          - checkout: self  
+
+          # --------------------------------
+          # STEP 2: INSTALL .NET SDK
+          # --------------------------------
+          # Installs the latest .NET SDK (version 8.x) required for the vulnerability scan.
+          # The UseDotNet task ensures that the correct version is available.
+          - task: UseDotNet@2
+            inputs:
+              packageType: 'sdk'  # Specifies that we want to install the .NET SDK, not just the runtime.
+              version: '8.x'  # Installs the latest .NET 8.x SDK.
+
+          # --------------------------------
+          # STEP 3: REMOVE .SQLPROJ FILE (PREVENT SQL BUILD ERRORS)
+          # --------------------------------
+          # The `.sqlproj` file (SQL project) is removed from the solution to avoid SSDT build failures.
+          # Then, `dotnet restore` is used to install all required .NET dependencies.
+          - script: |
+              dotnet sln Agrimetrics.DataShare/Agrimetrics.DataShare.sln remove Agrimetrics.DataShare/Agrimetrics.DataShare.Sql/Agrimetrics.DataShare.Sql.sqlproj
+              dotnet restore Agrimetrics.DataShare/Agrimetrics.DataShare.sln
+            displayName: 'Restore .NET packages (excluding .sqlproj)'
+
+          # --------------------------------
+          # STEP 4: RUN VULNERABILITY SCAN
+          # --------------------------------
+          # This command scans all .NET dependencies for known vulnerabilities using `dotnet list package --vulnerable`.
+          # If any packages have security vulnerabilities, they will be flagged in the pipeline logs.
+          - script: |
+              dotnet list Agrimetrics.DataShare/Agrimetrics.DataShare.sln package --vulnerable
+            displayName: 'Check for Vulnerabilities in .NET Packages'

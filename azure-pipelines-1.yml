@@ -1,0 +1,174 @@
+# ==============================
+# Azure DevOps Pipeline for SQL Database Deployment
+# ==============================
+# This pipeline is used to deploy the Data Share Database (DACPAC) to different environments: 
+# DEV, TEST, and PRODUCTION.
+# It uses Azure SQL Database Deployment tasks to apply schema changes using DACPAC files.
+# The pipeline does NOT trigger automatically and must be run manually.
+
+# ------------------------------
+# Trigger: None (Manual Execution Only)
+# ------------------------------
+# This ensures the pipeline is NOT triggered automatically on code push or PR merges.
+# You must manually start the pipeline from Azure DevOps.
+trigger:
+- none
+
+# ------------------------------
+# Agent Pool: Windows Latest
+# ------------------------------
+# Specifies that the pipeline will run on a Microsoft-hosted agent using the latest Windows image.
+# This ensures compatibility with .NET-based projects and SQL deployments.
+pool:
+  vmImage: windows-latest
+
+# ===================================
+# STAGES SECTION 
+# ===================================
+stages:
+  # ===================================
+  # STAGE 1: DEVELOPMENT (DEV) DEPLOYMENT
+  # ===================================
+  - stage: DEV_Environment_Deployment
+    displayName: 'Deploy Data Share DB to DEV Environment'  # Human-readable name in Azure DevOps UI
+
+    jobs:
+      - deployment: DeployToDev
+        displayName: 'Deploy to DEV'  # Displayed in pipeline logs
+        environment: 'DATASHARE SQL DB - DEV'  # Azure DevOps Environment (for approvals, tracking)
+        
+        strategy:
+          runOnce:  # Ensures deployment only runs once per pipeline execution
+            deploy:
+              steps:
+                # --------------------------------
+                # STEP 1: CHECKOUT REPOSITORY CODE
+                # --------------------------------
+                - checkout: self  # Fetches the latest code from the repository (current branch)
+
+                # --------------------------------
+                # STEP 2: RESTORE DEPENDENCIES
+                # --------------------------------
+                - task: NuGetCommand@2
+                  inputs:
+                    restoreSolution: '**/*.sln'  # Restores all NuGet dependencies in the solution
+
+                # --------------------------------
+                # STEP 3: BUILD THE DATABASE PROJECT
+                # --------------------------------
+                - task: VSBuild@1
+                  inputs:
+                    solution: '**/*.sln'  # Builds all solution files in the repository
+                    platform: 'Any CPU'  # Specifies build platform (Any CPU for cross-compatibility)
+                    configuration: 'Release'  # Ensures the build is optimized for production use
+
+                # --------------------------------
+                # STEP 4: LIST DACPAC DIRECTORY
+                # --------------------------------
+                # This outputs the directory structure to help debug missing files or incorrect paths.
+                - script: dir $(System.DefaultWorkingDirectory)
+                  displayName: 'List DACPAC directory'
+
+                # --------------------------------
+                # STEP 5: DEPLOY DATABASE CHANGES
+                # --------------------------------
+                # Deploys the built DACPAC package to the DEV SQL Server using SQL authentication.
+                - task: SqlAzureDacpacDeployment@1
+                  inputs:
+                    azureSubscription: '$(azureSubscriptionDev)'  # Azure subscription for DEV environment
+                    AuthenticationType: 'server'  # Uses SQL Server authentication
+                    ServerName: '$(sqlServerDev)'  # The Azure SQL Server instance for DEV
+                    DatabaseName: '$(databaseNameDev)'  # The specific database to update
+                    SqlUsername: '$(sqlUsername)'  # Admin username for authentication
+                    SqlPassword: '$(SQLPASSWORD_DEV)'  # Securely stored password in Azure DevOps
+                    deployType: 'DacpacTask'  # Specifies deployment type using a DACPAC package
+                    DeploymentAction: 'Publish'  # Applies schema changes to the database
+                    DacpacFile: '$(System.DefaultWorkingDirectory)/Agrimetrics.DataShare/Agrimetrics.DataShare.Sql/bin/Release/Agrimetrics.DataShare.Sql.dacpac'  # Path to the DACPAC file built earlier
+                    IpDetectionMethod: 'AutoDetect'  # Automatically configures firewall rules if needed
+
+  # ===================================
+  # STAGE 2: TEST (UAT) DEPLOYMENT
+  # ===================================
+  - stage: TEST_Environment_Deployment
+    displayName: 'Deploy Data Share DB to TEST Environment'
+    dependsOn: DEV_Environment_Deployment  # Ensures TEST deployment only runs if DEV deployment succeeds
+    condition: succeeded()  # Prevents execution if the previous stage fails
+
+    jobs:
+      - deployment: DeployToTest
+        displayName: 'Deploy to TEST'
+        environment: 'DATASHARE SQL DB - TEST'
+
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self  # Fetches the latest code
+
+                - task: NuGetCommand@2
+                  inputs:
+                    restoreSolution: '**/*.sln'
+
+                - task: VSBuild@1
+                  inputs:
+                    solution: '**/*.sln'
+                    platform: 'Any CPU'
+                    configuration: 'Release'
+
+                - script: dir $(System.DefaultWorkingDirectory)
+                  displayName: 'List DACPAC directory'
+
+                - task: SqlAzureDacpacDeployment@1
+                  inputs:
+                    azureSubscription: '$(azureSubscriptionDev)'  # Using DEV subscription for TEST
+                    AuthenticationType: 'server'
+                    ServerName: '$(sqlServerTest)'  # TEST SQL Server instance
+                    DatabaseName: '$(databaseNameTest)'  # Target database for TEST
+                    SqlUsername: '$(sqlUsername)'
+                    SqlPassword: '$(SQLPASSWORD_TEST)'
+                    deployType: 'DacpacTask'
+                    DeploymentAction: 'Publish'
+                    DacpacFile: '$(System.DefaultWorkingDirectory)/Agrimetrics.DataShare/Agrimetrics.DataShare.Sql/bin/Release/Agrimetrics.DataShare.Sql.dacpac'
+                    IpDetectionMethod: 'AutoDetect'
+
+  # ===================================
+  # STAGE 3: PRODUCTION (PROD) DEPLOYMENT
+  # ===================================
+  - stage: PROD_UK_SOUTH
+    displayName: 'Deploy Data Share DB to PROD Environment - UK South'
+    dependsOn: TEST_Environment_Deployment  # Ensures PROD deployment only runs after TEST succeeds
+    condition: succeeded()
+
+    jobs:
+      - deployment: DeployToProdUKSouth
+        displayName: 'Deploy to PROD UK SOUTH'
+        environment: 'DATASHARE SQL DB - PROD UK SOUTH'
+
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self  # Fetches the latest code
+
+                - task: NuGetCommand@2
+                  inputs:
+                    restoreSolution: '**/*.sln'
+
+                - task: VSBuild@1
+                  inputs:
+                    solution: '**/*.sln'
+                    platform: 'Any CPU'
+                    configuration: 'Release'
+
+                - task: SqlAzureDacpacDeployment@1
+                  inputs:
+                    azureSubscription: '$(azureSubscriptionProd)'  # Production Azure subscription
+                    AuthenticationType: 'server'
+                    ServerName: '$(sqlServerProd)'  # The Production SQL Server instance
+                    DatabaseName: '$(databaseNameProd)'  # Target production database
+                    SqlUsername: '$(sqlUsername)'
+                    SqlPassword: '$(SQLPASSWORD_PROD)'
+                    deployType: 'DacpacTask'
+                    DeploymentAction: 'Publish'
+                    DacpacFile: '$(System.DefaultWorkingDirectory)/Agrimetrics.DataShare/Agrimetrics.DataShare.Sql/bin/Release/Agrimetrics.DataShare.Sql.dacpac'
+                    IpDetectionMethod: 'AutoDetect'

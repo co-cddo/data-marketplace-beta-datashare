@@ -1,0 +1,8 @@
+﻿CREATE TABLE [dbo].[FreeFormOptions]
+(
+	[Id] UNIQUEIDENTIFIER NOT NULL PRIMARY KEY DEFAULT NEWID(),
+
+	[QuestionPart] UNIQUEIDENTIFIER NOT NULL FOREIGN KEY REFERENCES [QuestionPart](Id),
+
+	[ValueEntryMayBeDeclined] BIT NOT NULL
+)

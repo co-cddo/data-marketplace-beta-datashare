@@ -1,0 +1,8 @@
+﻿CREATE TABLE [dbo].[QuestionFooterItem]
+(
+	[Id] UNIQUEIDENTIFIER NOT NULL PRIMARY KEY DEFAULT NEWID(),
+
+	[QuestionFooter] UNIQUEIDENTIFIER NOT NULL FOREIGN KEY REFERENCES [dbo].[QuestionFooter](Id),
+	[Text] NVARCHAR(512) NOT NULL,
+	[OrderWithinFooter] INTEGER NOT NULL
+)

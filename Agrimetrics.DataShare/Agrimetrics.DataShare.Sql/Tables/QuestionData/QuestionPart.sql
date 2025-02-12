@@ -1,0 +1,11 @@
+﻿CREATE TABLE [dbo].[QuestionPart]
+(
+	[Id] UNIQUEIDENTIFIER NOT NULL PRIMARY KEY DEFAULT NEWID(),
+
+	QuestionText NVARCHAR(512) NULL,
+	HintText NVARCHAR(MAX) NULL,
+
+	AllowMultipleAnswerItems BIT NOT NULL,
+
+	[ResponseFormatType] NVARCHAR(32) NOT NULL FOREIGN KEY REFERENCES [ResponseFormatType](Id)
+)
