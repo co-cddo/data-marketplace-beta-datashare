@@ -79,15 +79,15 @@ Next, open your hosts file (usually found in the folder `C:\Windows\System32\dri
 
 ## Datashare API configuration  
 
-This section contains instructions on configuring the `Cddo.Datashare` solution so that it can be run locally. 
+This section contains instructions on configuring the `Agrimetrics.Datashare` solution so that it can be run locally. 
 
 This section assumes you have completed all the steps in *Local development environment setup*.
 
 ### Local settings
 
-Copy the local settings file [here](./readme/appsettings.datashare/appsettings.Development.json) into your `\cddo-datashare\Cddo.Data.Marketplace.Datashare` folder.
+Take a copy of the file [here](./Agrimetrics.DataShare/Agrimetrics.DataShare.Api/appsettings.json) and renami it to `.Agrimetrics.DataShare.Api/appsettings.Development.json`.
 
-### Certificate management for local execution 
+Open the file and update any of the placeholder values to their actual runtime values. 
 
 Next, set the following projects to start with the debug target of "http" (right click solution -> Configure Startup Projects):
 
@@ -99,7 +99,9 @@ Next, set the following projects to start with the debug target of "http" (right
 
 Now run the solution!
 
-Assuming there are no errors on startup, you should be able to see the swagger page for the API. 
+Assuming there are no errors on startup, you should be able to see the swagger page for the API on local port 7145.
+
+![Local service running](./readme/swagger.png)
 
 
 
