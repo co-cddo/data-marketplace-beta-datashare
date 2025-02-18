@@ -216,8 +216,32 @@ stages:
                     package: '$(Pipeline.Workspace)/api/**/*.zip'
 
   # DEPLOY TO PROD
-  - stage: PROD_UK_SOUTH
+  - stage: PROD_UK_West
     dependsOn: TEST_Environment_Deployment
+    condition: succeeded()
+    displayName: 'Deploy to PRODUCTION Environment - UK West'
+    jobs:
+      - deployment: DeployToProdUKSouth
+        environment: 'CDDO PROD Data Share API UK West'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - download: current
+                  artifact: api
+                - task: AzureRmWebAppDeployment@4
+                  displayName: 'Deploy to PROD Data Share API (UK West)'
+                  inputs:
+                    ConnectionType: 'AzureRM'
+                    azureSubscription: '$(azureSubscriptionProd)'
+                    appType: 'webApp'
+                    WebAppName: '$(webAppNameProdUKWest)'
+                    ResourceGroupName: '$(resourceGroupProdUKWest)'
+                    package: '$(Pipeline.Workspace)/api/**/*.zip'
+
+  # DEPLOY TO PROD
+  - stage: PROD_UK_SOUTH
+    dependsOn: PROD_UK_West
     condition: succeeded()
     displayName: 'Deploy to PRODUCTION Environment - UK South'
     jobs:
