@@ -215,13 +215,13 @@ stages:
                     ResourceGroupName: '$(resourceGroupTest)'
                     package: '$(Pipeline.Workspace)/api/**/*.zip'
 
-  # DEPLOY TO PROD
+  # DEPLOY TO PROD UK WEST
   - stage: PROD_UK_West
     dependsOn: TEST_Environment_Deployment
     condition: succeeded()
     displayName: 'Deploy to PRODUCTION Environment - UK West'
     jobs:
-      - deployment: DeployToProdUKSouth
+      - deployment: DeployToProdUKWest
         environment: 'CDDO PROD Data Share API UK West'
         strategy:
           runOnce:
@@ -239,7 +239,7 @@ stages:
                     ResourceGroupName: '$(resourceGroupProdUKWest)'
                     package: '$(Pipeline.Workspace)/api/**/*.zip'
 
-  # DEPLOY TO PROD
+  # DEPLOY TO PROD UK SOUTH
   - stage: PROD_UK_SOUTH
     dependsOn: PROD_UK_West
     condition: succeeded()
