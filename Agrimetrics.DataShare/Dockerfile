@@ -16,7 +16,6 @@ COPY Agrimetrics.DataShare.Api/*.csproj ./Agrimetrics.DataShare.Api/
 # Restore all project dependencies
 RUN dotnet restore ./Agrimetrics.DataShare.Api.Core/*.csproj
 RUN dotnet restore ./Agrimetrics.DataShare.Api.Dto/*.csproj
-RUN dotnet restore ./Agrimetrics.DataShare.Api.Db/*.csproj
 RUN dotnet restore ./Agrimetrics.DataShare.Api.Logic/*.csproj
 RUN dotnet restore ./Agrimetrics.DataShare.Api/*.csproj
 
