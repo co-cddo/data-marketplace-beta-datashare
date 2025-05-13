@@ -7,16 +7,11 @@
 # - Runs unit tests and collects code coverage reports
 # - Publishes build artifacts
 # - Deploys the API to DEV, TEST, and PROD environments
+ 
 
-# ------------------------------
-# Trigger: Only Runs on Master Branch
-# ------------------------------
-# This pipeline is triggered automatically whenever a commit is pushed to the `master` branch.
-trigger:
-  branches:
-    include:
-      - master  # Ensures this pipeline runs only on master branch commits.
-
+# CI disabled intentionally — do not re-enable without team consensus
+trigger: none
+pr: none
 # ------------------------------
 # Agent Pool: Windows Latest
 # ------------------------------

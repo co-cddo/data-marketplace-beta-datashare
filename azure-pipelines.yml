@@ -4,14 +4,9 @@
 # This pipeline is used to scan .NET dependencies for known vulnerabilities.
 # It runs automatically on the master branch and on a daily schedule at 9 AM.
 
-# ------------------------------
-# Trigger: Only Runs on Master Branch
-# ------------------------------
-# This pipeline is triggered ONLY when changes are pushed to the `master` branch.
-trigger:
-  branches:
-    include:
-      - master  # Ensures that the pipeline runs only when the master branch is updated.
+# CI disabled intentionally — do not re-enable without team consensus
+trigger: none
+pr: none
 
 # ------------------------------
 # Agent Pool: Azure Pipelines (Windows Latest)
