@@ -98,6 +98,8 @@ jobs:
         with:
           push: true
           tags: "${{ env.FULL_IMAGE }}"
-          file: Dockerfile
-          context: .
+          file: Agrimetrics.DataShare/Dockerfile
+          context: Agrimetrics.DataShare
           platforms: linux/amd64
+
+          
