@@ -18,7 +18,7 @@ permissions:
 
 env:
   AWS_REGION: eu-west-2
-  PROJECT_NAME: data-share 
+  PROJECT_NAME: datashare 
 
 jobs:
   deploy:
@@ -59,7 +59,7 @@ jobs:
           done
           declare -A REPOS=(
             ["Dev"]="dm-fast-dev"
-            ["Test"]="dm-fast-test"
+            ["Test"]="dm-fast-tst"
             ["Prod"]="dm-fast-prod"
           )
           ACCOUNT_TYPE="${ENV_ACCOUNT_TYPE[$ENV]}"
