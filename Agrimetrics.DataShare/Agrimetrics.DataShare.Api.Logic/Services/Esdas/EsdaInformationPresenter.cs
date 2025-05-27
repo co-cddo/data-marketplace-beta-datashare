@@ -1,6 +1,7 @@
 ﻿using Agrimetrics.DataShare.Api.Logic.Exceptions;
 using Agrimetrics.DataShare.Api.Logic.Services.Esdas.DataSetPresentation;
 using Agrimetrics.DataShare.Api.Logic.Services.Esdas.Model;
+using Agrimetrics.DataShare.Api.Logic.Services.Esdas.Model.External;
 using Microsoft.Extensions.Logging;
 
 namespace Agrimetrics.DataShare.Api.Logic.Services.Esdas;
@@ -15,7 +16,29 @@ public class EsdaInformationPresenter(
 
         try
         {
-            var getEsdaOwnershipDetailsResponse = await dataAssetPresenter.GetEsdaOwnershipDetailsAsync(esdaId);
+
+            // TODO: IMPLEMENT: Stubbed the call to the data asset presenter
+            //   var getEsdaOwnershipDetailsResponse = await dataAssetPresenter.GetEsdaOwnershipDetailsAsync(esdaId);
+            var title = "";
+            if (esdaId == Guid.Parse("8d085327-21b6-4d8b-9705-88faad231d23") ) {
+                title = "Advance Passenger Information";
+            }
+            else
+            {
+                title = "Advance Passenger Information II";
+            }
+            var getEsdaOwnershipDetailsResponse = new GetEsdaOwnershipDetailsResponse
+            {
+                EsdaId = esdaId,
+                Title = title,
+                OrganisationId = 1,
+                DomainId = 1,
+                ContactPointName = "Rob Nichols",
+                ContactPointEmailAddress = "robert.nichols@digital.cabinet-office.gov.uk",
+                DataShareRequestNotificationRecipientType = DataShareRequestNotificationRecipientType.DomainDsrNotificationAddress,
+                CustomDsrNotificationAddress = "custom@example.com"
+            };
+            // END stub
 
             return new EsdaDetails
             {
